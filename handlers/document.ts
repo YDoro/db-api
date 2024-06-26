@@ -1,3 +1,4 @@
+import { inspect } from "bun";
 import { MongoClient } from "mongodb";
 import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
 import mongoReadTranslator from "../data/utils/mongo-read-translator";
@@ -9,10 +10,10 @@ export const HandleDocumentRead = async (req: Request): Promise<Response> => {
     const q = mongoReadTranslator(req)
 
     const col = client.db("everything").collection(q.collection)
-    
+
     const res = await (col.aggregate(q.pipeline).toArray())
 
-    if (res.length === 0){
+    if (res.length === 0) {
         return { status: 204, data: res }
     }
 
@@ -23,8 +24,19 @@ export const HandleDocumentRead = async (req: Request): Promise<Response> => {
 export const HandleDocumentCreation = async (req: Request): Promise<Response> => {
     const data = mongoInsertTranslator(req)
     const col = client.db("everything").collection(data.collection)
-    const res = await col.insertOne(data.document)
+    
+    if (!data.isSubDocumentInsertion) {
+        const res = await col.insertOne(data.document)
+        return { status: 200, data: { id: res.insertedId } }
+    }
+    
+    if (Object.keys(data?.filter).length) {
+        console.log(inspect(data))
+        const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters })
+        return { status: 200, data: { id: res?._id } }
+    }
 
-    return { status: 200, data: { message: res.insertedId } }
+    // TODO ajust this
+    return { status: 400, data: { message: "no massive updates allowed" } }
 
 }

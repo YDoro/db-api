@@ -1,15 +1,46 @@
+import { ObjectId, type Document } from "mongodb";
 import type { Request } from "../../interfaces/presentation";
 
 type insertion = {
     collection: string,
-    document: any
+    isSubDocumentInsertion: boolean,
+    document: any,
+    filter: Document,
+    arrayFilters: any[]
 }
 
 export default (req: Request): insertion => {
-    const { url, body } = req
-
+    const { url, body, query } = req
     const [col, ...rest] = url.slice(1).split("/")
+    const isSubDocumentInsertion = !!rest.filter(v => v).length
+    const search: any = {}
+    const filters: any[] = [];
 
-    return { collection: col, document: body }
+    var updatePath = "";
 
+    rest.filter(v => v).forEach((segment) => {
+        if (ObjectId.isValid(segment)) {
+            if (!search["_id"]) {
+                search["_id"] = new ObjectId(segment)
+                return
+            } else {
+                updatePath += ".$[element]"
+                filters.push({ "element._id": new ObjectId(segment) })
+                return
+            }
+        }
+
+        updatePath += `.${segment}`
+    })
+
+    query?.split("&").forEach((arg) => {
+        const [param, value] = arg.split("=")
+        search[`${param}`] = value
+    })
+
+    const finaldocument = updatePath ? {
+        $push: { [updatePath.slice(1)]: body }
+    } : body
+
+    return { collection: col, document: finaldocument, isSubDocumentInsertion, filter: search, arrayFilters: filters }
 }
