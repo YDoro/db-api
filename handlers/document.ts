@@ -1,4 +1,5 @@
 import { MongoClient } from "mongodb";
+import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
 import mongoReadTranslator from "../data/utils/mongo-read-translator";
 import type { Request, Response } from "../interfaces/presentation";
 
@@ -16,4 +17,14 @@ export const HandleDocumentRead = async (req: Request): Promise<Response> => {
     }
 
     return { status: 200, data: res }
+}
+
+
+export const HandleDocumentCreation = async (req: Request): Promise<Response> => {
+    const data = mongoInsertTranslator(req)
+    const col = client.db("everything").collection(data.collection)
+    const res = await col.insertOne(data.document)
+
+    return { status: 200, data: { message: res.insertedId } }
+
 }
