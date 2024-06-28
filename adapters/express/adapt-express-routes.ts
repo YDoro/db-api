@@ -1,18 +1,21 @@
 import type { Request, Response } from "express";
-import type { Request as InternalReq, Response as InternalRes } from "../../interfaces/presentation";
+import { withErrorHandling } from "../../decorators/request-error-handler";
+import type { RequestHandler } from "../../presentation/contracts/request-handler";
+import type { Request as Req } from "../../presentation/interfaces/http";
 
-type requestHandler = (req: InternalReq) => Promise<InternalRes>
+export default (handler: RequestHandler) =>
+    async (req: Request, res: Response) => {
+        try {
+            const adaptedRequest: Req = {
+                url: req.url.split("?")[0].replaceAll('//', '/'),
+                body: req.body,
+                query: req.url.split("?")[1] || undefined
+            }
+            
+            const response = await withErrorHandling(handler)(adaptedRequest)
 
-
-export default (handler: requestHandler) => 
-    async (req: Request, res: Response)=> {
-    const adaptedRequest:InternalReq = {
-        url: req.url.split("?")[0].replaceAll('//','/'),
-        body: req.body,
-        query: req.url.split("?")[1] || undefined
+            res.status(response.status).json(response.data)
+        } catch (err) {
+            res.status(500).json({ message: "oops something whent wrong" })
+        }
     }
-    
-    const response = await handler(adaptedRequest)
-    //TODO - catch errors
-    res.status(response.status).json(response.data)
-}
