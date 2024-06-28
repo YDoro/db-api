@@ -1,8 +1,7 @@
-import { inspect } from "bun";
 import { MongoClient } from "mongodb";
 import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
 import mongoReadTranslator from "../data/utils/mongo-read-translator";
-import type { Request, Response } from "../interfaces/presentation";
+import type { Request, Response } from "../presentation/interfaces/http";
 
 const client = new MongoClient(process.env.DB_CONNECTION_STING || "")
 
@@ -31,7 +30,6 @@ export const HandleDocumentCreation = async (req: Request): Promise<Response> =>
     }
     
     if (Object.keys(data?.filter).length) {
-        console.log(inspect(data))
         const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters })
         return { status: 200, data: { id: res?._id } }
     }

@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import type { Request } from "../../interfaces/presentation";
+import type { Request } from "../../presentation/interfaces/http";
 
 type query = {
     collection:string,

@@ -1,5 +1,5 @@
 import { ObjectId, type Document } from "mongodb";
-import type { Request } from "../../interfaces/presentation";
+import type { Request } from "../../presentation/interfaces/http";
 
 type insertion = {
     collection: string,
