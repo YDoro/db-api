@@ -12,7 +12,7 @@ type update = {
 export default (req: Request): update => {
     const { url, body, query } = req
     const [col, ...rest] = url.slice(1).split("/")
-    const isSubDocumentUpdate = !!rest.filter(v => v).length
+    const isSubDocumentUpdate = !!rest.filter(v => !ObjectId.isValid(v) && !!v).length
     const search: any = {}
     const filters: any[] = [];
 
