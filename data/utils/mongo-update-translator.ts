@@ -13,6 +13,7 @@ export default (req: Request): update => {
     const { url, body, query } = req
     const [col, ...rest] = url.slice(1).split("/")
     const isSubDocumentUpdate = !!rest.filter(v => !ObjectId.isValid(v) && !!v).length
+    const isSpecificDocUpdate = ObjectId.isValid(structuredClone(rest).pop()||"");
     const search: any = {}
     const filters: any[] = [];
 
@@ -50,9 +51,19 @@ export default (req: Request): update => {
         }
     })
 
+    
 
     const finaldocument = {
         $set: updatePath ? { [updatePath.slice(1)]: body } : body
+    }
+
+    if (isSpecificDocUpdate && isSubDocumentUpdate){
+        Object.entries(finaldocument.$set).forEach(([key,doc])=>{
+            Object.entries(doc as any).forEach(([keyToUpdate,value])=>{
+                finaldocument.$set[`${key}.${keyToUpdate}`] = value
+            })
+            delete finaldocument.$set[key];
+        })
     }
 
     return { collection: col, document: finaldocument, isSubDocumentUpdate: isSubDocumentUpdate, filter: search, arrayFilters: filters }
