@@ -1,4 +1,3 @@
-import { inspect } from "bun";
 import { MongoClient } from "mongodb";
 import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
 import mongoReadTranslator from "../data/utils/mongo-read-translator";
@@ -42,7 +41,6 @@ export const HandleDocumentCreation = async (req: Request): Promise<Response> =>
 export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
     const data = mongoUpdateTranslator(req)
     const col = client.db("everything").collection(data.collection)
-    console.log(inspect(data));
 
     if (Object.keys(data?.filter).length) {
         const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters })
