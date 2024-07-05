@@ -18,14 +18,14 @@ export default (req: Request): update => {
 
     var updatePath = "";
 
-    const queryFilter:any = {};
+    const queryFilter: any = {};
     query?.split("&").forEach((arg) => {
         const [param, value] = arg.split("=")
         queryFilter[`.${param}`] = value
     })
 
     const clearValues = rest.filter(v => v);
-    clearValues.forEach((segment,i) => {
+    clearValues.forEach((segment, i) => {
         if (ObjectId.isValid(segment)) {
             if (!search["_id"]) {
                 search["_id"] = new ObjectId(segment)
@@ -38,23 +38,22 @@ export default (req: Request): update => {
         }
 
         updatePath += `.${segment}`
-        
-        if(i === clearValues.length - 1 && Object.keys(queryFilter).length){
+
+        if (i === clearValues.length - 1 && Object.keys(queryFilter).length) {
             updatePath += `.$[element${i}]`
-            const parsedQueryFilter :any = {}
-            Object.entries(queryFilter).forEach(([key,value])=>{
+            const parsedQueryFilter: any = {}
+            Object.entries(queryFilter).forEach(([key, value]) => {
                 parsedQueryFilter[`element${i}${key}`] = value
             })
 
             filters.push(parsedQueryFilter)
-
         }
     })
 
 
-    const finaldocument = updatePath ? {
-        $set: { [updatePath.slice(1)]: body }
-    } : body
+    const finaldocument = {
+        $set: updatePath ? { [updatePath.slice(1)]: body } : body
+    }
 
     return { collection: col, document: finaldocument, isSubDocumentUpdate: isSubDocumentUpdate, filter: search, arrayFilters: filters }
 }
