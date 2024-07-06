@@ -2,49 +2,47 @@ import { ObjectId } from "mongodb";
 import type { Request } from "../../presentation/interfaces/http";
 
 type query = {
-    collection:string,
-    pipeline?:any[]
-}
+    collection: string;
+    pipeline?: any[];
+};
 
-export default (req:Request): query => {
-    const {url,query} = req
-    const [col,...rest] = url.slice(1).split("/")
-    
-    const pipelines:any[] = [];
+export default (req: Request): query => {
+    const { url, query } = req;
+    const [col, ...rest] = url.slice(1).split("/");
 
-    rest.filter(v=>v).forEach((segment,i,rest) => {
+    const pipelines: any[] = [];
 
-        if (ObjectId.isValid(segment)){
+    rest.filter((v) => v).forEach((segment, i, rest) => {
+        if (ObjectId.isValid(segment)) {
             pipelines.push({
-                $match:{
-                    "_id": new ObjectId(segment)
-                }
-            })
+                $match: {
+                    _id: new ObjectId(segment),
+                },
+            });
         } else {
             pipelines.push(
                 {
-                    $unwind:`$${segment}`
+                    $unwind: `$${segment}`,
                 },
                 {
                     $replaceRoot: {
-                        newRoot: `$${segment}`
-                    }
-                }
-            )
+                        newRoot: `$${segment}`,
+                    },
+                },
+            );
         }
-    })
-    
-    const match:any = {}
+    });
+
+    const match: any = {};
     // TODO - imporve types - query including types
-    query?.split("&").forEach((arg)=>{
-        const [param,value] = arg.split("=")
-        match[`${param}`] = value
-        
-    })
+    query?.split("&").forEach((arg) => {
+        const [param, value] = arg.split("=");
+        match[`${param}`] = value;
+    });
 
     pipelines.push({
-        $match: match
-    })
+        $match: match,
+    });
 
-    return {collection:col,pipeline:pipelines}
-}
+    return { collection: col, pipeline: pipelines };
+};
