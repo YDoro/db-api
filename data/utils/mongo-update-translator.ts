@@ -20,10 +20,11 @@ export default (req: Request): update => {
     let updatePath = "";
 
     const queryFilter: any = {};
-    query?.split("&").forEach((arg) => {
+
+    for (const arg of query?.split("&") || []) {
         const [param, value] = arg.split("=");
         queryFilter[`.${param}`] = value;
-    });
+    }
 
     const clearValues = rest.filter((v) => v);
     clearValues.forEach((segment, i) => {
@@ -42,9 +43,10 @@ export default (req: Request): update => {
         if (i === clearValues.length - 1 && Object.keys(queryFilter).length) {
             updatePath += `.$[element${i}]`;
             const parsedQueryFilter: any = {};
-            Object.entries(queryFilter).forEach(([key, value]) => {
+
+            for (const [key, value] of Object.entries(queryFilter)) {
                 parsedQueryFilter[`element${i}${key}`] = value;
-            });
+            }
 
             filters.push(parsedQueryFilter);
         }
@@ -55,12 +57,12 @@ export default (req: Request): update => {
     };
 
     if (isSpecificDocUpdate && isSubDocumentUpdate) {
-        Object.entries(finaldocument.$set).forEach(([key, doc]) => {
-            Object.entries(doc as any).forEach(([keyToUpdate, value]) => {
+        for (const [key, doc] of Object.entries(finaldocument.$set)) {
+            for (const [keyToUpdate, value] of Object.entries(doc as any)) {
                 finaldocument.$set[`${key}.${keyToUpdate}`] = value;
-            });
+            }
             delete finaldocument.$set[key];
-        });
+        }
     }
 
     return {

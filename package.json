@@ -1,28 +1,28 @@
 {
-  "name": "db-api",
-  "module": "index.ts",
-  "type": "module",
-  "scripts": {
-    "prepare": "husky",
-    "postinstall": "bun prepare",
-    "lint": "biome lint --write",
-    "lint-staged":"biome check --write",
-    "test": "bun test",
-    "start": "bun index.ts",
-    "dev" :"bun --watch --inspect index.ts"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "1.8.3",
-    "@types/bun": "latest",
-    "@types/express": "^4.17.21",
-    "husky": "^9.0.11",
-    "lint-staged": "^15.2.7"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "express": "^4.19.2",
-    "mongodb": "^6.7.0"
-  }
+    "name": "db-api",
+    "module": "index.ts",
+    "type": "module",
+    "scripts": {
+        "prepare": "husky",
+        "postinstall": "bun prepare",
+        "lint": "biome lint --write",
+        "lint-staged": "biome check --write",
+        "test": "bun test",
+        "start": "bun index.ts",
+        "dev": "bun --watch --inspect index.ts"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "1.8.3",
+        "@types/bun": "latest",
+        "@types/express": "^4.17.21",
+        "husky": "^9.0.11",
+        "lint-staged": "^15.2.7"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "express": "^4.19.2",
+        "mongodb": "^6.7.0"
+    }
 }

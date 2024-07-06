@@ -18,24 +18,24 @@ export default (req: Request): insertion => {
 
     let updatePath = "";
 
-    rest.filter((v) => v).forEach((segment) => {
+    for (const segment of rest.filter((v) => v)) {
         if (ObjectId.isValid(segment)) {
             if (!search._id) {
                 search._id = new ObjectId(segment);
-                return;
+                continue;
             }
             updatePath += ".$[element]";
             filters.push({ "element._id": new ObjectId(segment) });
-            return;
+            continue;
         }
 
         updatePath += `.${segment}`;
-    });
+    }
 
-    query?.split("&").forEach((arg) => {
+    for (const arg of query?.split("&") || []) {
         const [param, value] = arg.split("=");
         search[`${param}`] = value;
-    });
+    }
 
     const finaldocument = updatePath
         ? {
@@ -43,5 +43,11 @@ export default (req: Request): insertion => {
           }
         : body;
 
-    return { collection: col, document: finaldocument, isSubDocumentInsertion, filter: search, arrayFilters: filters };
+    return {
+        collection: col,
+        document: finaldocument,
+        isSubDocumentInsertion,
+        filter: search,
+        arrayFilters: filters,
+    };
 };

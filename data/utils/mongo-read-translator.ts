@@ -35,10 +35,10 @@ export default (req: Request): query => {
 
     const match: any = {};
     // TODO - imporve types - query including types
-    query?.split("&").forEach((arg) => {
+    for (const arg of query?.split("&") || []) {
         const [param, value] = arg.split("=");
         match[`${param}`] = value;
-    });
+    }
 
     pipelines.push({
         $match: match,
