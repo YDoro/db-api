@@ -23,6 +23,10 @@ export const HandleDocumentCreation = async (req: Request): Promise<Response> =>
     const col = client.db("everything").collection(data.collection);
 
     if (!data.isSubDocumentInsertion) {
+        if (Array.isArray(data.document)) {
+            const res = await col.insertMany(data.document);
+            return { status: 200, data: { ids: res.insertedIds } };
+        }
         const res = await col.insertOne(data.document);
         return { status: 200, data: { id: res.insertedId } };
     }
