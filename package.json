@@ -3,7 +3,7 @@
     "module": "index.ts",
     "type": "module",
     "scripts": {
-        "prepare": "husky",
+        "prepare": "bun husky",
         "postinstall": "bun prepare",
         "lint": "biome lint --write",
         "lint-staged": "biome check --write",
