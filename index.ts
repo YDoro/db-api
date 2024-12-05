@@ -1,5 +1,6 @@
-import { closeConnection, connect, getClient } from "./config/database";
+import { closeConnection, connect, getDatabase } from "./config/database";
 import App from "./config/server";
+import { MongoSeeder } from "./data/seeds";
 const PORT = process.env.PORT || 8000;
 
 process.on("SIGTERM", async () => {
@@ -7,7 +8,10 @@ process.on("SIGTERM", async () => {
 });
 
 connect()
-    .then(() => {
+    .then(async () => {
+        if (process.env.MIGRATE_DB === "true") {
+            await MongoSeeder((await getDatabase()));
+        }
         App.listen(PORT, () => {
             console.log(`server running at ${PORT}`);
         });
