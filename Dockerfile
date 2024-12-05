@@ -8,7 +8,7 @@ COPY . .
 RUN bun install
 
 # Expose the port the application will run on
-EXPOSE 3000
+EXPOSE ${PORT}
 
 # Run the command to start the development server
 CMD ["bun", "run", "start"]
