@@ -1,14 +1,12 @@
-import { MongoClient } from "mongodb";
+import { getDatabase } from "../config/database";
 import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
 import mongoReadTranslator from "../data/utils/mongo-read-translator";
 import mongoUpdateTranslator from "../data/utils/mongo-update-translator";
 import type { Request, Response } from "../presentation/interfaces/http";
 
-const client = new MongoClient(process.env.DB_CONNECTION_STING || "");
-
 export const HandleDocumentRead = async (req: Request): Promise<Response> => {
     const q = mongoReadTranslator(req);
-    const col = client.db("everything").collection(q.collection);
+    const col = (await getDatabase()).collection(q.collection);
     const res = await col.aggregate(q.pipeline).toArray();
 
     if (res.length === 0) {
@@ -20,7 +18,7 @@ export const HandleDocumentRead = async (req: Request): Promise<Response> => {
 
 export const HandleDocumentCreation = async (req: Request): Promise<Response> => {
     const data = mongoInsertTranslator(req);
-    const col = client.db("everything").collection(data.collection);
+    const col = (await getDatabase()).collection(data.collection);
 
     if (!data.isSubDocumentInsertion) {
         const res = await col.insertOne(data.document);
@@ -38,7 +36,7 @@ export const HandleDocumentCreation = async (req: Request): Promise<Response> =>
 
 export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
     const data = mongoUpdateTranslator(req);
-    const col = client.db("everything").collection(data.collection);
+    const col = (await getDatabase()).collection(data.collection);
 
     if (Object.keys(data?.filter).length) {
         const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters });
