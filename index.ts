@@ -10,7 +10,7 @@ process.on("SIGTERM", async () => {
 connect()
     .then(async () => {
         if (process.env.MIGRATE_DB === "true") {
-            await MongoSeeder((await getDatabase()));
+            await MongoSeeder(await getDatabase());
         }
         App.listen(PORT, () => {
             console.log(`server running at ${PORT}`);
