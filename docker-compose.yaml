@@ -8,6 +8,7 @@ services:
       - "${PORT}:${PORT}"
     depends_on:
       - mongo
+      - cache
     env_file: 
       - .env
     environment:
@@ -20,5 +21,16 @@ services:
     ports:
       - "27017:27017"
 
+  cache:
+    image: redis:7.4-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass 49dbdeb8c7c52ca4b90b45c1317ee0e6 --user db-api
+    volumes: 
+      - cache:/data
+
 volumes:
+  cache:
+    driver: local
   mongo-data:
