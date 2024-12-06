@@ -1,3 +1,4 @@
+import { setCacheForRequest } from "../config/cache";
 import { getDatabase } from "../config/database";
 import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
 import mongoReadTranslator from "../data/utils/mongo-read-translator";
@@ -13,6 +14,7 @@ export const HandleDocumentRead = async (req: Request): Promise<Response> => {
         return { status: 204, data: res };
     }
 
+    await setCacheForRequest(req, { status: 200, data: res });
     return { status: 200, data: res };
 };
 
