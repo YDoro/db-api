@@ -1,5 +1,4 @@
 import { MongoDocumentUseCases } from "../data/usecases/mongo-document-usecases";
-import mongoUpdateTranslator from "../data/utils/mongo-update-translator";
 import { setCacheForRequest } from "../infra/config/cache";
 import { getDatabase } from "../infra/config/database";
 import type { Request, Response } from "../presentation/interfaces/http";
@@ -36,7 +35,7 @@ export const HandleDocumentCreation = async (req: Request): Promise<Response> =>
 };
 
 export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
-    const data = mongoUpdateTranslator(req);
+    const data = new MongoDocumentUseCases().getDocumentUpdaterFromRequest(req); //TODO - move to a factory
     const col = (await getDatabase()).collection(data.collection);
 
     if (Object.keys(data?.filter).length) {

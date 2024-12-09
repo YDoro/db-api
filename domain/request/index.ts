@@ -12,3 +12,7 @@ export type DocumentQuery = {
     collection: string;
     pipeline?: any[];
 };
+
+export type DocumentUpdater = Omit<DocumentInsertion, "isSubDocumentInsertion"> & {
+    isSubDocumentUpdate: boolean;
+};
