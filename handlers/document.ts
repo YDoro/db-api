@@ -1,14 +1,20 @@
+import { makeDocumentRepo } from "../application/factories/repositories/mongo-document-repo";
+import { makeFindDocumentUC } from "../application/factories/usecases/find-document-uc";
 import { MongoRequestToDocumentInsertionMapper } from "../application/mappers/mongo-request-to-document-insertion-mapper";
 import { MongoRequestToDocumentQueryMapper } from "../application/mappers/mongo-request-to-document-query-mapper";
 import { MongoRequestToDocumentUpdaterMapper } from "../application/mappers/mongo-request-to-document-updater-mapper";
+import { MongoDocumentRepository } from "../application/repositories/document";
+import { MongoFindDocument } from "../application/usecases/mongo-find-document";
 import { clearCollectionRelatedCache, setCacheForRequest } from "../infra/config/cache";
 import { getDatabase } from "../infra/config/database";
 import type { Request, Response } from "../presentation/interfaces/http";
 
 export const HandleDocumentRead = async (req: Request): Promise<Response> => {
-    const q = MongoRequestToDocumentQueryMapper(req); //TODO - use interface based dependency
-    const col = (await getDatabase()).collection(q.collection);
-    const res = await col.aggregate(q.pipeline).toArray();
+    const q = MongoRequestToDocumentQueryMapper(req);
+    const db = await getDatabase(); // in future we can change database based on requesting user if needed
+    const uc = makeFindDocumentUC(makeDocumentRepo(db));
+
+    const res = await uc.Find(q);
 
     if (res.length === 0) {
         return { status: 204, data: res };
