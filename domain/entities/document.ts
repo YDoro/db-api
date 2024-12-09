@@ -1,5 +1,6 @@
-import type { Document } from "mongodb"; // TODO - make it generic
-
+export interface Document {
+    [key: string]: any;
+}
 export type DocumentInsertion = {
     collection: string;
     isSubDocumentInsertion: boolean;

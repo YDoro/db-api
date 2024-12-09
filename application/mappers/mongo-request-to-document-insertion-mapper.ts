@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import type { DocumentInsertion } from "../../domain/entities/request";
+import type { DocumentInsertion } from "../../domain/entities/document";
 import type { RequestToDocumentInsertionMapper } from "../../domain/mappers/request-to-document-insertion";
 import type { Request } from "../../presentation/interfaces/http";
 

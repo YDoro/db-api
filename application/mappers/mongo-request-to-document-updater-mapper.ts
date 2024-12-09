@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import type { DocumentUpdater } from "../../domain/entities/request";
+import type { DocumentUpdater } from "../../domain/entities/document";
 import type { Request } from "../../presentation/interfaces/http";
 
 export const MongoRequestToDocumentUpdaterMapper = (req: Request): DocumentUpdater => {

@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import type { DocumentQuery } from "../../domain/entities/request";
+import type { DocumentQuery } from "../../domain/entities/document";
 import type { Request } from "../../presentation/interfaces/http";
 
 export const MongoRequestToDocumentQueryMapper = (req: Request): DocumentQuery => {
