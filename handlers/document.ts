@@ -52,3 +52,5 @@ export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
     // TODO - prepare to accept massive updates
     return { status: 200, data: { id: updatedId } };
 };
+
+// TODO - handle deletion
