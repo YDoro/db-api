@@ -1,6 +1,6 @@
 import { closeConnection, connect, getDatabase } from "./config/database";
 import App from "./config/server";
-import { MongoSeeder } from "./data/seeds";
+import { MongoSeeder } from "./infra/seeds";
 const PORT = process.env.PORT || 8000;
 
 process.on("SIGTERM", async () => {
