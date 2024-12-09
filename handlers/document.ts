@@ -1,8 +1,8 @@
-import { setCacheForRequest } from "../infra/config/cache";
-import { getDatabase } from "../infra/config/database";
-import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
+import { MongoDocumentUseCases } from "../data/usecases/mongo-document-usecases";
 import mongoReadTranslator from "../data/utils/mongo-read-translator";
 import mongoUpdateTranslator from "../data/utils/mongo-update-translator";
+import { setCacheForRequest } from "../infra/config/cache";
+import { getDatabase } from "../infra/config/database";
 import type { Request, Response } from "../presentation/interfaces/http";
 
 export const HandleDocumentRead = async (req: Request): Promise<Response> => {
@@ -19,7 +19,7 @@ export const HandleDocumentRead = async (req: Request): Promise<Response> => {
 };
 
 export const HandleDocumentCreation = async (req: Request): Promise<Response> => {
-    const data = mongoInsertTranslator(req);
+    const data = new MongoDocumentUseCases().getDocumentInsertionFromRequest(req); //TODO - move to a factory
     const col = (await getDatabase()).collection(data.collection);
 
     if (!data.isSubDocumentInsertion) {
