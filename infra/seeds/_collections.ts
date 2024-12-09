@@ -1,5 +1,5 @@
 import type { Seeder } from ".";
-import type { Collection } from "../../domain/collection";
+import type { Collection } from "../../domain/entities/collection";
 
 export const migrations: Seeder<Collection> = {
     collection: "_collections",
