@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { getClient } from "../../config/cache";
+import { getClient } from "../../infra/config/cache";
 
 export default async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     if (req.method === "GET") {

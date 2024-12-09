@@ -1,5 +1,5 @@
-import { setCacheForRequest } from "../config/cache";
-import { getDatabase } from "../config/database";
+import { setCacheForRequest } from "../infra/config/cache";
+import { getDatabase } from "../infra/config/database";
 import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
 import mongoReadTranslator from "../data/utils/mongo-read-translator";
 import mongoUpdateTranslator from "../data/utils/mongo-update-translator";

@@ -1,6 +1,6 @@
 import type { RedisClientType } from "redis";
 import redis from "redis";
-import type { Request, Response } from "../presentation/interfaces/http";
+import type { Request, Response } from "../../presentation/interfaces/http";
 
 let client: RedisClientType | null = null;
 

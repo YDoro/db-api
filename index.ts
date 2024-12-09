@@ -1,5 +1,5 @@
-import { closeConnection, connect, getDatabase } from "./config/database";
-import App from "./config/server";
+import { closeConnection, connect, getDatabase } from "./infra/config/database";
+import App from "./infra/config/server";
 import { MongoSeeder } from "./infra/seeds";
 const PORT = process.env.PORT || 8000;
 
