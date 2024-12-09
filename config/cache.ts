@@ -19,5 +19,7 @@ export const getClient = async (): Promise<RedisClientType> => {
 export const setCacheForRequest = async (req: Request, res: Response): Promise<void> => {
     const r = await getClient();
     const auth = req.headers?.authorization || "";
-    await r.set(req.url + auth, JSON.stringify({ status: res.status, data: res.data }));
+    await r.set(req.url + auth, JSON.stringify({ status: res.status, data: res.data }), {
+        EX: Number(process.env?.CACHE_TTL) || 60,
+    });
 };
