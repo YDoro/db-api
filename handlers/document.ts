@@ -1,6 +1,7 @@
 import { makeDocumentRepo } from "../application/factories/repositories/mongo-document-repo";
 import { makeFindDocumentUC } from "../application/factories/usecases/find-document-uc";
 import { makeInsertDocumentUC } from "../application/factories/usecases/insert-document-uc";
+import { makeUpdateDocumentUC } from "../application/factories/usecases/update-document-uc";
 import { MongoRequestToDocumentInsertionMapper } from "../application/mappers/mongo-request-to-document-insertion-mapper";
 import { MongoRequestToDocumentQueryMapper } from "../application/mappers/mongo-request-to-document-query-mapper";
 import { MongoRequestToDocumentUpdaterMapper } from "../application/mappers/mongo-request-to-document-updater-mapper";
@@ -38,14 +39,16 @@ export const HandleDocumentCreation = async (req: Request): Promise<Response> =>
 };
 
 export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
-    const data = MongoRequestToDocumentUpdaterMapper(req); //TODO - use interface based dependency
-    const col = (await getDatabase()).collection(data.collection);
+    const data = MongoRequestToDocumentUpdaterMapper(req);
+    const db = await getDatabase();
+    const uc = makeUpdateDocumentUC(makeDocumentRepo(db));
+    const updatedId = await uc.Update(data);
 
-    if (Object.keys(data?.filter).length) {
-        clearCollectionRelatedCache(data.collection);
-        const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters });
-        return { status: 200, data: { id: res?._id } };
+    if (!updatedId) {
+        return { status: 400, data: { message: "invalid input" } };
     }
 
-    return { status: 400, data: { message: "invalid input" } };
+    clearCollectionRelatedCache(data.collection);
+    // TODO - prepare to accept massive updates
+    return { status: 200, data: { id: updatedId } };
 };
