@@ -1,12 +1,11 @@
 import { MongoDocumentUseCases } from "../data/usecases/mongo-document-usecases";
-import mongoReadTranslator from "../data/utils/mongo-read-translator";
 import mongoUpdateTranslator from "../data/utils/mongo-update-translator";
 import { setCacheForRequest } from "../infra/config/cache";
 import { getDatabase } from "../infra/config/database";
 import type { Request, Response } from "../presentation/interfaces/http";
 
 export const HandleDocumentRead = async (req: Request): Promise<Response> => {
-    const q = mongoReadTranslator(req);
+    const q = new MongoDocumentUseCases().getDocumentQueryFromRequest(req); //TODO - move to a factory
     const col = (await getDatabase()).collection(q.collection);
     const res = await col.aggregate(q.pipeline).toArray();
 

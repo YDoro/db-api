@@ -7,3 +7,8 @@ export type DocumentInsertion = {
     filter: Document;
     arrayFilters: any[];
 };
+
+export type DocumentQuery = {
+    collection: string;
+    pipeline?: any[];
+};
