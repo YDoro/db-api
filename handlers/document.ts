@@ -1,7 +1,7 @@
 import { MongoRequestToDocumentInsertionMapper } from "../application/mappers/mongo-request-to-document-insertion-mapper";
 import { MongoRequestToDocumentQueryMapper } from "../application/mappers/mongo-request-to-document-query-mapper";
 import { MongoRequestToDocumentUpdaterMapper } from "../application/mappers/mongo-request-to-document-updater-mapper";
-import { setCacheForRequest } from "../infra/config/cache";
+import { clearCollectionRelatedCache, setCacheForRequest } from "../infra/config/cache";
 import { getDatabase } from "../infra/config/database";
 import type { Request, Response } from "../presentation/interfaces/http";
 
@@ -24,10 +24,12 @@ export const HandleDocumentCreation = async (req: Request): Promise<Response> =>
 
     if (!data.isSubDocumentInsertion) {
         const res = await col.insertOne(data.document);
+        clearCollectionRelatedCache(data.collection);
         return { status: 200, data: { id: res.insertedId } };
     }
 
     if (Object.keys(data?.filter).length) {
+        clearCollectionRelatedCache(data.collection);
         const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters });
         return { status: 200, data: { id: res?._id } };
     }
@@ -41,6 +43,7 @@ export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
     const col = (await getDatabase()).collection(data.collection);
 
     if (Object.keys(data?.filter).length) {
+        clearCollectionRelatedCache(data.collection);
         const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters });
         return { status: 200, data: { id: res?._id } };
     }

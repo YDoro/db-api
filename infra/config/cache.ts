@@ -23,3 +23,20 @@ export const setCacheForRequest = async (req: Request, res: Response): Promise<v
         EX: Number(process.env?.CACHE_TTL) || 60,
     });
 };
+
+export const clearCollectionRelatedCache = async (collection: string): Promise<void> => {
+    const r = await getClient();
+
+    let cursor = 0;
+    do {
+        try {
+            const data = await r.scan(cursor, { MATCH: `/${collection}/*` });
+            cursor = data.cursor;
+            for (const key of data.keys) {
+                await r.del(key);
+            }
+        } catch (err) {
+            console.error(`could not remove cache for collection ${collection}`, err);
+        }
+    } while (cursor !== 0);
+};
