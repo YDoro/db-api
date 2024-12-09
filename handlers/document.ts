@@ -1,10 +1,12 @@
-import { MongoDocumentUseCases } from "../data/usecases/mongo-document-usecases";
+import { MongoRequestToDocumentInsertionMapper } from "../application/mappers/mongo-request-to-document-insertion-mapper";
+import { MongoRequestToDocumentQueryMapper } from "../application/mappers/mongo-request-to-document-query-mapper";
+import { MongoRequestToDocumentUpdaterMapper } from "../application/mappers/mongo-request-to-document-updater-mapper";
 import { setCacheForRequest } from "../infra/config/cache";
 import { getDatabase } from "../infra/config/database";
 import type { Request, Response } from "../presentation/interfaces/http";
 
 export const HandleDocumentRead = async (req: Request): Promise<Response> => {
-    const q = new MongoDocumentUseCases().getDocumentQueryFromRequest(req); //TODO - move to a factory
+    const q = MongoRequestToDocumentQueryMapper(req); //TODO - use interface based dependency
     const col = (await getDatabase()).collection(q.collection);
     const res = await col.aggregate(q.pipeline).toArray();
 
@@ -17,7 +19,7 @@ export const HandleDocumentRead = async (req: Request): Promise<Response> => {
 };
 
 export const HandleDocumentCreation = async (req: Request): Promise<Response> => {
-    const data = new MongoDocumentUseCases().getDocumentInsertionFromRequest(req); //TODO - move to a factory
+    const data = MongoRequestToDocumentInsertionMapper(req); //TODO - use interface based dependency
     const col = (await getDatabase()).collection(data.collection);
 
     if (!data.isSubDocumentInsertion) {
@@ -35,7 +37,7 @@ export const HandleDocumentCreation = async (req: Request): Promise<Response> =>
 };
 
 export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
-    const data = new MongoDocumentUseCases().getDocumentUpdaterFromRequest(req); //TODO - move to a factory
+    const data = MongoRequestToDocumentUpdaterMapper(req); //TODO - use interface based dependency
     const col = (await getDatabase()).collection(data.collection);
 
     if (Object.keys(data?.filter).length) {

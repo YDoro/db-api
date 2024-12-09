@@ -1,4 +1,4 @@
-import type { Document } from "mongodb";
+import type { Document } from "mongodb"; // TODO - make it generic
 
 export type DocumentInsertion = {
     collection: string;
