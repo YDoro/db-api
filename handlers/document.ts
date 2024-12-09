@@ -1,5 +1,6 @@
 import { makeDocumentRepo } from "../application/factories/repositories/mongo-document-repo";
 import { makeFindDocumentUC } from "../application/factories/usecases/find-document-uc";
+import { makeInsertDocumentUC } from "../application/factories/usecases/insert-document-uc";
 import { MongoRequestToDocumentInsertionMapper } from "../application/mappers/mongo-request-to-document-insertion-mapper";
 import { MongoRequestToDocumentQueryMapper } from "../application/mappers/mongo-request-to-document-query-mapper";
 import { MongoRequestToDocumentUpdaterMapper } from "../application/mappers/mongo-request-to-document-updater-mapper";
@@ -25,23 +26,15 @@ export const HandleDocumentRead = async (req: Request): Promise<Response> => {
 };
 
 export const HandleDocumentCreation = async (req: Request): Promise<Response> => {
-    const data = MongoRequestToDocumentInsertionMapper(req); //TODO - use interface based dependency
-    const col = (await getDatabase()).collection(data.collection);
+    const data = MongoRequestToDocumentInsertionMapper(req);
+    const db = await getDatabase();
+    const uc = makeInsertDocumentUC(makeDocumentRepo(db));
 
-    if (!data.isSubDocumentInsertion) {
-        const res = await col.insertOne(data.document);
-        clearCollectionRelatedCache(data.collection);
-        return { status: 200, data: { id: res.insertedId } };
-    }
+    const insertedId = await uc.Insert(data);
 
-    if (Object.keys(data?.filter).length) {
-        clearCollectionRelatedCache(data.collection);
-        const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters });
-        return { status: 200, data: { id: res?._id } };
-    }
+    clearCollectionRelatedCache(data.collection);
 
-    // TODO check this case
-    return { status: 400, data: { message: "no massive updates allowed" } };
+    return { status: 200, data: { id: insertedId } };
 };
 
 export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
