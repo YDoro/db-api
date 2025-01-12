@@ -6,6 +6,8 @@ import type { Request as Req } from "../../presentation/interfaces/http";
 export default (handler: RequestHandler) => async (req: Request, res: Response) => {
     try {
         const adaptedRequest: Req = {
+            headers: req.headers,
+            method: req.method.toUpperCase(),
             url: req.url.split("?")[0].replaceAll("//", "/"),
             body: req.body,
             query: req.url.split("?")[1] || undefined,

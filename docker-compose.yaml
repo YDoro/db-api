@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  db-api:
+    container_name: do-nothing-api
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - mongo
+      - cache
+    env_file: 
+      - .env
+    environment:
+      - DB_CONNECTION_STING=mongodb://mongo:27017/
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
+  cache:
+    image: redis:7.4-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass 49dbdeb8c7c52ca4b90b45c1317ee0e6 --user db-api
+    volumes: 
+      - cache:/data
+
+volumes:
+  cache:
+    driver: local
+  mongo-data:

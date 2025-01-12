@@ -1,15 +1,8 @@
-import { type Document, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
+import type { DocumentUpdater } from "../../domain/entities/document";
 import type { Request } from "../../presentation/interfaces/http";
 
-type update = {
-    collection: string;
-    isSubDocumentUpdate: boolean;
-    document: any;
-    filter: Document;
-    arrayFilters: any[];
-};
-
-export default (req: Request): update => {
+export const MongoRequestToDocumentUpdaterMapper = (req: Request): DocumentUpdater => {
     const { url, body, query } = req;
     const [col, ...rest] = url.slice(1).split("/");
     const isSubDocumentUpdate = !!rest.filter((v) => !ObjectId.isValid(v) && !!v).length;

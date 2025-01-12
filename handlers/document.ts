@@ -1,53 +1,54 @@
-import { MongoClient } from "mongodb";
-import mongoInsertTranslator from "../data/utils/mongo-insert-translator";
-import mongoReadTranslator from "../data/utils/mongo-read-translator";
-import mongoUpdateTranslator from "../data/utils/mongo-update-translator";
+import { makeDocumentRepo } from "../application/factories/repositories/mongo-document-repo";
+import { makeFindDocumentUC } from "../application/factories/usecases/find-document-uc";
+import { makeInsertDocumentUC } from "../application/factories/usecases/insert-document-uc";
+import { makeUpdateDocumentUC } from "../application/factories/usecases/update-document-uc";
+import { MongoRequestToDocumentInsertionMapper } from "../application/mappers/mongo-request-to-document-insertion-mapper";
+import { MongoRequestToDocumentQueryMapper } from "../application/mappers/mongo-request-to-document-query-mapper";
+import { MongoRequestToDocumentUpdaterMapper } from "../application/mappers/mongo-request-to-document-updater-mapper";
+import { clearCollectionRelatedCache, setCacheForRequest } from "../infra/config/cache";
+import { getDatabase } from "../infra/config/database";
 import type { Request, Response } from "../presentation/interfaces/http";
 
-const client = new MongoClient(process.env.DB_CONNECTION_STING || "");
-
 export const HandleDocumentRead = async (req: Request): Promise<Response> => {
-    const q = mongoReadTranslator(req);
-    const col = client.db("everything").collection(q.collection);
-    const res = await col.aggregate(q.pipeline).toArray();
+    const q = MongoRequestToDocumentQueryMapper(req);
+    const db = await getDatabase(); // in future we can change database based on requesting user if needed
+    const uc = makeFindDocumentUC(makeDocumentRepo(db));
+
+    const res = await uc.Find(q);
 
     if (res.length === 0) {
         return { status: 204, data: res };
     }
 
+    await setCacheForRequest(req, { status: 200, data: res });
     return { status: 200, data: res };
 };
 
 export const HandleDocumentCreation = async (req: Request): Promise<Response> => {
-    const data = mongoInsertTranslator(req);
-    const col = client.db("everything").collection(data.collection);
+    const data = MongoRequestToDocumentInsertionMapper(req);
+    const db = await getDatabase();
+    const uc = makeInsertDocumentUC(makeDocumentRepo(db));
 
-    if (!data.isSubDocumentInsertion) {
-        if (Array.isArray(data.document)) {
-            const res = await col.insertMany(data.document);
-            return { status: 200, data: { ids: res.insertedIds } };
-        }
-        const res = await col.insertOne(data.document);
-        return { status: 200, data: { id: res.insertedId } };
-    }
+    const insertedId = await uc.Insert(data);
 
-    if (Object.keys(data?.filter).length) {
-        const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters });
-        return { status: 200, data: { id: res?._id } };
-    }
+    clearCollectionRelatedCache(data.collection);
 
-    // TODO check this case
-    return { status: 400, data: { message: "no massive updates allowed" } };
+    return { status: 200, data: { id: insertedId } };
 };
 
 export const HandleDocumentUpdate = async (req: Request): Promise<Response> => {
-    const data = mongoUpdateTranslator(req);
-    const col = client.db("everything").collection(data.collection);
+    const data = MongoRequestToDocumentUpdaterMapper(req);
+    const db = await getDatabase();
+    const uc = makeUpdateDocumentUC(makeDocumentRepo(db));
+    const updatedId = await uc.Update(data);
 
-    if (Object.keys(data?.filter).length) {
-        const res = await col.findOneAndUpdate(data.filter, data.document, { arrayFilters: data.arrayFilters });
-        return { status: 200, data: { id: res?._id } };
+    if (!updatedId) {
+        return { status: 400, data: { message: "invalid input" } };
     }
 
-    return { status: 400, data: { message: "invalid input" } };
+    clearCollectionRelatedCache(data.collection);
+    // TODO - prepare to accept massive updates
+    return { status: 200, data: { id: updatedId } };
 };
+
+// TODO - handle deletion

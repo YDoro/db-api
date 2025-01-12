@@ -1,12 +1,8 @@
 import { ObjectId } from "mongodb";
+import type { DocumentQuery } from "../../domain/entities/document";
 import type { Request } from "../../presentation/interfaces/http";
 
-type query = {
-    collection: string;
-    pipeline?: any[];
-};
-
-export default (req: Request): query => {
+export const MongoRequestToDocumentQueryMapper = (req: Request): DocumentQuery => {
     const { url, query } = req;
     const [col, ...rest] = url.slice(1).split("/");
 

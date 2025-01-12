@@ -3,7 +3,7 @@
     "module": "index.ts",
     "type": "module",
     "scripts": {
-        "prepare": "husky",
+        "prepare": "bun husky",
         "postinstall": "bun prepare",
         "lint": "biome lint --write",
         "lint-staged": "biome check --write",
@@ -23,6 +23,7 @@
     },
     "dependencies": {
         "express": "^4.19.2",
-        "mongodb": "^6.7.0"
+        "mongodb": "^6.7.0",
+        "redis": "^4.7.0"
     }
 }

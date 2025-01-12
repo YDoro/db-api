@@ -1,15 +1,9 @@
-import { type Document, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
+import type { DocumentInsertion } from "../../domain/entities/document";
+import type { RequestToDocumentInsertionMapper } from "../../domain/mappers/request-to-document-insertion";
 import type { Request } from "../../presentation/interfaces/http";
 
-type insertion = {
-    collection: string;
-    isSubDocumentInsertion: boolean;
-    document: any;
-    filter: Document;
-    arrayFilters: any[];
-};
-
-export default (req: Request): insertion => {
+export const MongoRequestToDocumentInsertionMapper = (req: Request): DocumentInsertion => {
     const { url, body, query } = req;
     const [col, ...rest] = url.slice(1).split("/");
     const isSubDocumentInsertion = !!rest.filter((v) => v).length;
