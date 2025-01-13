@@ -2,6 +2,9 @@ version: '3'
 
 services:
   db-api:
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     container_name: do-nothing-api
     build: .
     ports:
@@ -12,7 +15,8 @@ services:
     env_file: 
       - .env
     environment:
-      - DB_CONNECTION_STING=mongodb://mongo:27017/
+      - NODE_DNS_SERVERS=8.8.8.8,8.8.4.4 
+      - DB_CONNECTION_STRING=mongodb://mongo:27017/
 
   mongo:
     image: mongo:latest
