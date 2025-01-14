@@ -12,4 +12,5 @@ export interface Request {
 export interface Response {
     status: number;
     data?: any;
+    headers?: Record<string, string>;
 }
