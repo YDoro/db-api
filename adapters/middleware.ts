@@ -24,6 +24,18 @@ export const adaptMiddleware = (middleware: Middleware) => {
         try {
             await middleware.handle(request, response);
             Object.assign(req, request);
+
+            if (response.headers) {
+                for (const [key, value] of Object.entries(response.headers)) {
+                    res.setHeader(key, value);
+                }
+            }
+
+            if (response.status === 204) {
+                res.status(204).end();
+                return;
+            }
+
             next();
         } catch (error) {
             next(error);
