@@ -21,6 +21,7 @@ ENV PATH="/root/.bun/bin:${PATH}"
 COPY . .
 
 RUN npm i
+RUN rm package-lock.json
 
 # Expose the port the application will run on
 EXPOSE ${PORT}
